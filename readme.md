@@ -16,6 +16,8 @@ Please, first of all download two files: Open Street Map data for Switzerland (~
 
 ## Put school data into correct subdirectories
 
+0. Create subdirectories `data/parquet/` and `data/gpkg/`
+
 1. Put `oevschul_soe.parquet` into `data/parquet/`
 2. Put `schulen_zürich.gpkg` and `schulkreise_zürich` ` into `data/gpkg/`
 
