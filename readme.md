@@ -33,13 +33,6 @@ Please, first of all download two files: Open Street Map data for Switzerland (~
 
 6. Copy your 'GTFS_FP2025_2024-09-02.zip' file into `data/gtfs/`
 
-## Copy school data into correct subdirectories
-
-0. Create subdirectories `data/parquet/` and `data/gpkg/`
-
-1. Put `oevschul_soe.parquet` into `data/parquet/`
-2. Put `schulen_zürich.gpkg` and `schulkreise_zürich` ` into `data/gpkg/`
-
 ## Create environment
 
 Once you have opened the folder with the script files, create a conda environment using the environment.yml which will install all necessary dependencies (within python) and activate it.
