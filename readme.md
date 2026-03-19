@@ -46,6 +46,10 @@ conda env create -f environment.yml
 conda activate kaenTransport
 ```
 
+Troubleshooting:
+> If you refuse to do what the conda installer(s) told you to do, you may need to run `conda init` beforehand.
+> You /may/ need to check whether conda works in bash instead of zsh? Worked for my brother using Linux...
+
 ## Out-of-Python requirements
 
 The scripts have (2) external requirements. Firstly, a version of [Osmium Tool](https://osmcode.org/osmium-tool/) is necessary to do local processing of Open Street Map data. Secondly, Docker is necessary to perform OSRM routing.
