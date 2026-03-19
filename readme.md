@@ -52,6 +52,7 @@ conda activate kaenTransport
 ```
 
 Troubleshooting:
+> [!NOTE]
 > 1. If you refuse to do what the conda installer(s) told you to do, you may need to run `conda init` beforehand.
 > 2. You /may/ need to check whether conda works in bash instead of zsh? Worked for my brother using Linux...
 
@@ -59,6 +60,7 @@ Troubleshooting:
 
 The scripts have (2) external requirements. Firstly, a version of [Osmium Tool](https://osmcode.org/osmium-tool/) is necessary to do local processing of Open Street Map data. Secondly, Docker is necessary to perform OSRM routing.
 
+> [!WARNING]
 > Osmium Tool is not available for Windows. If you wish to use it anyways, resort to using WLS (broadly described below). I would recommend just using the precomputed clipped OSM files found [here](https://drive.google.com/drive/folders/1Mp1g-txBi5JBEO_vjZGFSqDMNmeigjJO?usp=sharing) and copying them into the correct folder `data/osm`. Once done that, every time you run `integrated.py` include `--osmium False` in your calls to avoid errors. This will work fine. I vouch for the code clipping the OSM file to work, if need be by demonstrating in person. In any case, use Linux. Thank you for listening to my TedTalk. 
 
 ## Install Osmium Tool
@@ -118,8 +120,8 @@ If you do wanna use WSL:
    ```bash
    docker --version
    ```
-
-> !! Docker Desktop must be **running** (menu bar icon) whenever you execute the script.
+> [!TIP]
+> Docker Desktop must be **running** (menu bar icon) whenever you execute the script.
 
 ### Linux
 
@@ -147,7 +149,19 @@ docker run hello-world
 
 The way you install Docker depends on whether you chose to use the WSL-route and compute osm extracts using Osmium Tool yourself. 
 
- >(1) If you use WSL, do the following:
+**(2) If you do not use WSL and instead use precomputed OSM extracts, do the following:**
+
+1. Download Docker Desktop from [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
+2. During installation, select "Use WSL 2 instead of Hyper-V" if prompted — this is a Docker-internal setting and does not require you to use WSL yourself.
+3. Open Docker Desktop after install and complete the setup wizard.
+4. Verify in PowerShell or Command Prompt:
+   ```powershell
+   docker --version
+   ```
+5. Run your Python script normally from PowerShell, Command Prompt, or your IDE — no WSL terminal needed.
+
+
+**(1) If you use WSL, do the following:**
 
 1. Download and install Docker Desktop, enabling the WSL 2 backend when prompted.
 
@@ -159,23 +173,13 @@ The way you install Docker depends on whether you chose to use the WSL-route and
    docker run hello-world
    ```
 
-> (2) If you do not use WSL and instead use precomputed OSM extracts, do the following:
-
-1. Download Docker Desktop from [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
-2. During installation, select "Use WSL 2 instead of Hyper-V" if prompted — this is a Docker-internal setting and does not require you to use WSL yourself.
-3. Open Docker Desktop after install and complete the setup wizard.
-4. Verify in PowerShell or Command Prompt:
-   ```powershell
-   docker --version
-   ```
-5. Run your Python script normally from PowerShell, Command Prompt, or your IDE — no WSL terminal needed.
-
 # Script Usage
 There are three scripts you will be executing directly: `integrated.py`, `custom_routing.py` and `app.py`. The former one is used for calculating the routes and some plots for one of the available cities / cantons [Bern, Zürich, Solothurn]. The latter ones are streamlit applications used for visualising the previously computed data (`app.py`) and calculating routings for custom origins and destinations and viewing results in table format (`custom_routing.py`) respectively.
 
 ## `integrated.py`
 
-> Running this script for the first time will be quite slow for the first time due to the plethora of imports that are being made. On my machine it takes anywhere from one to two minutes for the imports to be done. Patience is key.
+> ![NOTE]
+> Running this script for the first time will be quite slow due to the plethora of imports that are being made. On my machine it takes anywhere from one to two minutes for the imports to be done. Patience is key.
 
 Usage of this script is straightforward. You run this script from terminal directly and specify all relevant options in your script call. If in doubt, run `python integrated.py --help` which gives you an overview of the options you can specify when running the script.
 
@@ -220,8 +224,10 @@ python integrated.py --city Zürich --schools True --cell 100 --skip plotting
 python integrated.py --city Solothurn --schools False --cell 100 --skip plotting
 ```
 
+> [!NOTE]
 > [1] Only specify `--schools True` for those cities for which school data is available, e.g. ["Bern", "Zürich"]. The program will alert you otherwise, obeying this will just save you a second.
 
+> [!TIP]
 > [2] A cell size of 100x100m is very precise but also computationally demanding as the sample size is quite large for bigger areas (especially Solothurn). **Consider using --cell 1000 for demo purposes (or checking whether my code works, hello @David Garcia et al.**).
 
 If you are interested in the plots generated by this script, run, consecutively (only after having run the script has specified above):
