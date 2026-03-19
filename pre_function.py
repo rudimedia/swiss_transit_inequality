@@ -1,0 +1,114 @@
+import subprocess
+import warnings
+from pathlib import Path
+import re
+import shutil
+
+import pandas as pd
+import geopandas as gpd
+from shapely import make_valid, box
+
+import osmnx as ox
+from pyrosm import OSM
+
+from import_zipfile import fix_gtfs
+
+import r5py
+
+# Using pyrosm throws two chained assignment errors within pyrosm.py (line 109) and user_defined.py (line 58) 
+# which are both calling functions from two separate .pyx files. Within these files, I could not find chained assignment.
+# I choose to ignore and suppress these warnings as they are non-breaking
+warnings.filterwarnings("ignore", category=pd.errors.ChainedAssignmentError)
+
+# ------------------------------------------------------------------------------------------------------------------------
+COUNTRY = "Switzerland"
+# ------------------------------------------------------------------------------------------------------------------------
+
+def load_previous_pre(city_file):
+            buildings = gpd.read_file(f"data/gpkg/{city_file}_data.gpkg", layer="buildings")
+            origins = gpd.read_file(f"data/gpkg/{city_file}_data.gpkg", layer="origins")
+            destinations = gpd.read_file(f"data/gpkg/{city_file}_data.gpkg", layer="destinations")
+            boundary = gpd.read_file(f"data/gpkg/{city_file}_data.gpkg", layer="boundary")
+
+            return boundary, buildings, origins, destinations
+
+def pre_processing(city, city_file, destination_name, osmium_avail="True", coord_crs=4326):
+
+    place = f"{city}, {COUNTRY}"
+
+    print(f"\nPreprocessing maps and transit data for: {place}.\n")
+
+    # get city boundary from osmnx / nominatim
+    print(f"\nGetting administrative boundary from ox.\n")
+    boundary = ox.geocode_to_gdf(place)
+    boundary.to_file(f"data/gpkg/{city_file}_data.gpkg", layer="boundary", driver="GPKG")
+
+    # create square boundary box from polygon boundary
+    west, south, east, north = boundary.total_bounds
+    bbox = f"{west},{south},{east},{north}"
+    bbox_box = box(west, south, east, north)
+
+    # clip OSM file
+    if osmium_avail == "True":
+        print("Clipping OSM data to administrative boundary...")
+        osm_path = Path(f"data/osm/{city_file}.osm.pbf")
+        osmium_path = shutil.which("osmium")
+
+        if osmium_path is None:
+            raise RuntimeError("osmium not found. Please install osmium-tool and ensure it is on your PATH.\nmacOS:  brew install osmium-tool\nLinux:  sudo apt install osmium-tool\nconda:  conda install -c conda-forge osmium-tool")
+
+        subprocess.run([osmium_path, "extract", "-b", bbox, "-o", str(osm_path), "data/osm/switzerland-latest.osm.pbf", "--overwrite"], check=True)
+    
+    # get buildings
+    print(f"\nGetting building polygons from OSM.\n")
+    # load clipped OSM file
+    osm = OSM(f"data/osm/{city_file}.osm.pbf")
+    buildings = osm.get_buildings()
+    # match crs
+    buildings = buildings.to_crs(boundary.crs)
+
+    # repair invalid geometries
+    buildings["geometry"] = buildings.geometry.apply(make_valid)
+    boundary["geometry"] = boundary.geometry.apply(make_valid)
+
+    # optional: drop empties
+    buildings = buildings[~buildings.geometry.is_empty & buildings.geometry.notna()].copy()
+    boundary = boundary[~boundary.geometry.is_empty & boundary.geometry.notna()].copy()
+
+    # only keep buildings within administrative boundary
+    buildings = gpd.clip(buildings, boundary).copy()
+
+    # get OSM-defined center points, assign the first one with point geometry and matching name (city) as center
+    # this will be used as destination for "Center" travel time calculations
+    centers = osm.get_data_by_custom_criteria(custom_filter={"place": ["city", "town", "village", "hamlet"]}, filter_type="keep", extra_attributes=["name"])
+    center = centers[centers["name"] == destination_name].copy()
+    center = center[center.geometry.geom_type == "Point"]
+
+    # Fixing GTFS-feed
+    print(f"\nFixing GTFS-feed for {city}.\n")
+    fix_gtfs(bbox_box, city_file, coord_crs)
+
+    # Create transport network
+    transport_network = r5py.TransportNetwork(f"data/osm/{city_file}.osm.pbf", [f"data/gtfs/gtfs-{city_file}.zip"])
+
+    # Use representative point for routing, snap to transport network (make reachable)
+    origins = buildings.copy()
+    origins["geometry"] = origins.geometry.representative_point()
+    origins["geometry"] = transport_network.snap_to_network(origins["geometry"])
+
+    # Snap city center to transport network (make reachable)
+    center_dest = center.copy()
+    center_dest["geometry"] = transport_network.snap_to_network(center_dest["geometry"])
+    
+    # if origin / center could not be snapped to network, drop row
+    origins = origins[origins.geometry.is_empty == False].copy()
+    center_dest = center_dest[center_dest.geometry.is_empty == False].copy()
+
+    # save for later access 
+    buildings.to_file(f"data/gpkg/{city_file}_data.gpkg", layer="buildings", driver="GPKG")
+    origins.to_file(f"data/gpkg/{city_file}_data.gpkg", layer="origins", driver="GPKG")
+    center_dest.to_file(f"data/gpkg/{city_file}_data.gpkg", layer="destinations", driver="GPKG")
+
+    return boundary, buildings, origins, center_dest
+
+
