@@ -61,7 +61,7 @@ conda install -c conda-forge osmium-tool
 
 ### Windows
 
-Unfortunately, Osmium-Tool is not available for Windows. I only found that out when I had already written all the scripts. It is possible to use Osmium-Tool via WSL which I will describe below, but if you are not feeling like doing so, please use the precomputed clipped osm.pbf files for Bern, Zürich, and Solothurn which I have linked to and put them in the appropriate folder. From you working directory that should be "data/osm/". In that case, please run `python integrated.py` with `--osmium False` at all times. 
+Unfortunately, Osmium-Tool is not available for Windows. I only found that out when I had already written all the scripts. It is possible to use Osmium-Tool via WSL which I will describe below, but if you are not feeling like doing so, please use the precomputed clipped osm.pbf files for Bern, Zürich, and Solothurn which I have linked to [here](https://drive.google.com/drive/folders/1Mp1g-txBi5JBEO_vjZGFSqDMNmeigjJO?usp=sharing) (~70MB in total) and put them in the appropriate folder. From you working directory that should be "data/osm/". In that case, please run `python integrated.py` with `--osmium False` at all times. 
 
 If you do wanna use WSL:
 1. Install WSL (For more information see [this Microsoft helppage](https://learn.microsoft.com/de-de/windows/wsl/install))
