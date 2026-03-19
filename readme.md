@@ -46,6 +46,8 @@ conda activate kaenTransport
 
 The scripts have (2) external requirements. Firstly, a version of [Osmium Tool](https://osmcode.org/osmium-tool/) is necessary to do local processing of Open Street Map data. Secondly, Docker is necessary to perform OSRM routing.
 
+> Osmium Tool is not available for Windows. If you wish to use it anyways, resort to using WLS (broadly described below). I would recommend just using the precomputed clipped OSM files found [here](https://drive.google.com/drive/folders/1Mp1g-txBi5JBEO_vjZGFSqDMNmeigjJO?usp=sharing) and copying them into the correct folder `data/osm`. Once done that, every time you run `integrated.py` include `--osmium False` in your calls to avoid errors. This will work fine. I vouch for the code clipping the OSM file to work, if need be by demonstrating in person. In any case, use Linux. Thank you for listening to my TedTalk. 
+
 ## Install Osmium Tool
 ### macOS
 
