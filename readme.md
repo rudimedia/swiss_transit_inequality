@@ -6,6 +6,18 @@
 2. `cd` into your chosen folder with the contents in them
 3. Proceed.
 
+## Download conda / miniforge
+
+You do not need to install both. Miniforge is sufficient for this project and should take less time to install / use space on your disk. Conda is more foolproof. Resort to conda if miniforge does not work for you.
+
+### Conda
+1. Check if you happen to have conda already installed.
+2. If not, please resort to their [installation guide](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). You can choose from the full anaconda install and miniconda. Miniconda should be sufficient for this project, resort to the full conda install if that does not work for you.
+
+### Miniforge
+1. Pick the fitting release file for your device / OS [here](https://github.com/conda-forge/miniforge/releases), download, install and follow the instructions.
+2. A more comprehensive guide on how to install can be found [on the official github page](https://github.com/conda-forge/miniforge). This is especially useful if you choose to install it on Windows in WLS.
+
 ## Download OSM and GTFS data
 
 Please, first of all download two files: Open Street Map data for Switzerland (~500MB) and its GTFS feed. 
