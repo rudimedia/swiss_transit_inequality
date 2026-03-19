@@ -16,7 +16,7 @@ conda --version
 ```
 
 ### Conda
-2. To install conda, please resort to their [installation guide](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). You can choose from the full anaconda install and miniconda. Miniconda should be sufficient for this project, resort to the full conda install if that does not work for you.
+1. To install conda, please resort to their [installation guide](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). You can choose from the full anaconda install and miniconda. Miniconda should be sufficient for this project, resort to the full conda install if that does not work for you.
 
 ### Miniforge
 1. Pick the fitting release file for your device / OS [here](https://github.com/conda-forge/miniforge/releases), download, install and follow the instructions.
