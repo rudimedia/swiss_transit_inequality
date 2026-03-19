@@ -7,14 +7,15 @@ Please, first of all download two files: Open Street Map data for Switzerland (~
 1. Download GTFS from [here](https://data.opentransportdata.swiss/en/dataset/timetable-2025-gtfs2020). Search for "GTFS_FP2025_2024-09-02.zip" and download. Alternatively, scroll to the very bottom, that should be the one. Do not change the filename.
 
 2. Download Open Street Map data for Switzerland from [Geofabrik here](https://download.geofabrik.de/europe/switzerland.html) under "Commonly Used Formats", download "switzerland-latest.osm.pbf". Do not change the filename.
+    > Note: If you are on Windows and not willing to run WLS (or need to be able to do this in 10min or less) please resort to using already clipped OSM files available [here](https://drive.google.com/drive/folders/1Mp1g-txBi5JBEO_vjZGFSqDMNmeigjJO?usp=sharing). They are only ~70MB in size. If you use these, please specify "--osmium False" every time you run `integrated.py´.
 
-3. Create a new folder `data` within your directory as well as its subdirectories `data/osm/` and `data/gtfs`. 
+4. Create a new folder `data` within your directory as well as its subdirectories `data/osm/` and `data/gtfs`. 
 
-4. Copy your 'switzerland-latest.osm.pbf' file into `data/osm/`
+5. Copy your 'switzerland-latest.osm.pbf' (or 'Bern.osm.pbf', 'Zürich.osm.pbf' and 'Solothurn.osm.pbf' respectively) into `data/osm/`
 
-5. Copy your 'GTFS_FP2025_2024-09-02.zip' file into `data/gtfs/`
+6. Copy your 'GTFS_FP2025_2024-09-02.zip' file into `data/gtfs/`
 
-## Put school data into correct subdirectories
+## Copy school data into correct subdirectories
 
 0. Create subdirectories `data/parquet/` and `data/gpkg/`
 
