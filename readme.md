@@ -199,7 +199,7 @@ python integrated.py --city Bern --schools True --skip plotting
 
 ==> This returns full travel time matrices for Bern and no plots. 
 
-> If you intend to run `app.py` afterwards, you should run the script three times in the following configuration:
+If you intend to run `app.py` afterwards, you should run the script three times in the following configuration:
 
 ```
 python integrated.py --city Bern --schools True --cell 100 --skip plotting
@@ -220,6 +220,13 @@ python integrated.py --city Solothurn --skip pre routing
 ```
 
 This will output the plots into ~/plots/(Bern | Zürich | Solothurn)/...
+
+If you want to do both things in one go and be done before lunch:
+```
+python integrated.py --city Bern --schools True --cell 1000
+python integrated.py --city Zürich --schools True --cell 1000
+python integrated.py --city Solothurn --cell 1000
+```
 
 ## `app.py`
 
