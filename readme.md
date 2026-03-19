@@ -1,5 +1,11 @@
 # Prerequisits
 
+## First of all
+
+1. Clone this github repository or download its contents into a folder of your choice.
+2. `cd` into your chosen folder with the contents in them
+3. Proceed.
+
 ## Download OSM and GTFS data
 
 Please, first of all download two files: Open Street Map data for Switzerland (~500MB) and its GTFS feed. 
