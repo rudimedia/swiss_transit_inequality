@@ -7,7 +7,6 @@ dependencies:
   - pyrosm=0.6.2
   - r5py=1.0.2
   - osmium-tool  
-  - conda
   - pip
   - pip:
     - streamlit==1.55.0
