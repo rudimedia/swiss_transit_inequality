@@ -2,9 +2,15 @@
 
 ## First of all
 
+0. This endeavour requires you to have a working internet connection.
+
 1. Clone this github repository or download its contents into a folder of your choice.
 2. `cd` into your chosen folder with the contents in them
-3. Proceed.
+3. Create the folder structure by running `setup_folder.py` like this:
+    ```
+    python setup_folder.py
+    ```
+4. Proceed
 
 ## Download conda / miniforge
 
@@ -28,14 +34,13 @@ Please, first of all download two files: Open Street Map data for Switzerland (~
 
 1. Download GTFS from [here](https://data.opentransportdata.swiss/en/dataset/timetable-2025-gtfs2020). Search for "GTFS_FP2025_2024-09-02.zip" and download. Alternatively, scroll to the very bottom, that should be the one. Do not change the filename.
 
-2. Download Open Street Map data for Switzerland from [Geofabrik here](https://download.geofabrik.de/europe/switzerland.html) under "Commonly Used Formats", download "switzerland-latest.osm.pbf". Do not change the filename.
-    > Note: If you are on Windows and not willing to run WLS (or need to be able to do this in 10min or less) please resort to using already clipped OSM files available [here](https://drive.google.com/drive/folders/1Mp1g-txBi5JBEO_vjZGFSqDMNmeigjJO?usp=sharing). They are only ~70MB in size. If you use these, please specify "--osmium False" every time you run `integrated.py´.
+2. Copy your 'gtfs_fp2025_2024-09-02.zip' file into `data/gtfs/`. Do not rename it.
 
-4. Create a new folder `data` within your directory as well as its subdirectories `data/osm/` and `data/gtfs`. 
+3. Download Open Street Map data for Switzerland from [Geofabrik here](https://download.geofabrik.de/europe/switzerland.html) under "Commonly Used Formats", download "switzerland-latest.osm.pbf". This will not be the default name after download. **Change the filename** to "switzerland-latest.osm.pbf". 
+    > [!NOTE]
+    > If you are on Windows and not willing to run WLS (or need to be able to do this in 10min or less) please resort to using already clipped OSM files available [here](https://drive.google.com/drive/folders/1Mp1g-txBi5JBEO_vjZGFSqDMNmeigjJO?usp=sharing). They are only ~70MB in size. If you use these, please specify "--osmium False" every time you run `integrated.py´.
 
-5. Copy your 'switzerland-latest.osm.pbf' (or 'Bern.osm.pbf', 'Zürich.osm.pbf' and 'Solothurn.osm.pbf' respectively) into `data/osm/`
-
-6. Copy your 'GTFS_FP2025_2024-09-02.zip' file into `data/gtfs/`
+4. Copy your 'switzerland-latest.osm.pbf' (or 'Bern.osm.pbf', 'Zürich.osm.pbf' and 'Solothurn.osm.pbf' respectively) into `data/osm/`
 
 ## Create environment
 
