@@ -10,9 +10,13 @@
 
 You do not need to install both. Miniforge is sufficient for this project and should take less time to install / use space on your disk. Conda is more foolproof. Resort to conda if miniforge does not work for you.
 
+Before doing so, check whether you happen to have it installed already:
+```
+conda --version
+```
+
 ### Conda
-1. Check if you happen to have conda already installed.
-2. If not, please resort to their [installation guide](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). You can choose from the full anaconda install and miniconda. Miniconda should be sufficient for this project, resort to the full conda install if that does not work for you.
+2. To install conda, please resort to their [installation guide](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). You can choose from the full anaconda install and miniconda. Miniconda should be sufficient for this project, resort to the full conda install if that does not work for you.
 
 ### Miniforge
 1. Pick the fitting release file for your device / OS [here](https://github.com/conda-forge/miniforge/releases), download, install and follow the instructions.
