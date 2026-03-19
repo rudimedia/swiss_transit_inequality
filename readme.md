@@ -178,7 +178,7 @@ There are three scripts you will be executing directly: `integrated.py`, `custom
 
 ## `integrated.py`
 
-> ![NOTE]
+> [!NOTE]
 > Running this script for the first time will be quite slow due to the plethora of imports that are being made. On my machine it takes anywhere from one to two minutes for the imports to be done. Patience is key.
 
 Usage of this script is straightforward. You run this script from terminal directly and specify all relevant options in your script call. If in doubt, run `python integrated.py --help` which gives you an overview of the options you can specify when running the script.
