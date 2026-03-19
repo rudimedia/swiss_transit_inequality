@@ -47,8 +47,8 @@ conda activate kaenTransport
 ```
 
 Troubleshooting:
-> If you refuse to do what the conda installer(s) told you to do, you may need to run `conda init` beforehand.
-> You /may/ need to check whether conda works in bash instead of zsh? Worked for my brother using Linux...
+> 1. If you refuse to do what the conda installer(s) told you to do, you may need to run `conda init` beforehand.
+> 2. You /may/ need to check whether conda works in bash instead of zsh? Worked for my brother using Linux...
 
 ## Out-of-Python requirements
 
