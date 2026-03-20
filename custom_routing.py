@@ -48,29 +48,50 @@ col1, col2 = st.columns([2, 4])
 
 with col2:
 
-    # Add origins
+    # Add origins, soft error if location cannot be found by Nominatim within city
     address = st.text_input("Enter origin address", placeholder=f"Street 23, {city}")
 
     if st.button("Add origin"):
         if address:
             try:
+                
+                # get coordinates from nominatim
                 lat, lon = ox.geocode(f"{address}, {city}")
-                curr_address = gpd.GeoDataFrame({"id": [len(st.session_state.origins)], "address": [address]}, geometry=[Point(lon, lat)], crs=4326)
+
+                # assign unique ID
+                if len(st.session_state.origins) == 0:
+                    id = 0
+                else:
+                    st.session_state.origins["id"].max() + 1
+
+                # dataframe
+                curr_address = gpd.GeoDataFrame({"id": id, "address": [address]}, geometry=[Point(lon, lat)], crs=4326)
                 st.session_state.origins = pd.concat([st.session_state.origins, curr_address], ignore_index=True)
             except Exception:
                 st.error("Could not find location")
 
 
-    # Add destinations
+    # Add destinations, soft error if location cannot be found by Nominatim within city
     address_dest = st.text_input("Enter destination address", placeholder=f"Street 23, {city}")
 
     if st.button("Add destination"):
-        if address:
+        if address_dest:
             try:
+                # get coordinates from nominatim
                 lat, lon = ox.geocode(address_dest)
+
+                # assign unique ID
+                if len(st.session_state.destinations) == 0:
+                    id = 0
+                else:
+                    st.session_state.destinations["id"].max() + 1
+
+                # dataframe
                 curr_address = gpd.GeoDataFrame({"id": [len(st.session_state.destinations)], "address": [address_dest]}, geometry=[Point(lon, lat)], crs=4326)
                 st.session_state.destinations = pd.concat([st.session_state.destinations, curr_address], ignore_index=True)
+
             except Exception:
+
                 st.error("Could not find location")
 
 
@@ -91,7 +112,7 @@ with col2:
 
                 origins = st.session_state.origins.drop_duplicates(subset="address").reset_index(drop=True)
                 origins["id"] = origins.index
-                result = route_custom(city_file, date, origins, st.session_state.destinations)
+                result = route_custom(city_file, date.strftime("%Y-%m-%d"), origins, st.session_state.destinations)
 
                 id_to_origin = origins.set_index("id")["address"]
                 id_to_dest = st.session_state.destinations.set_index("id")["address"]
@@ -117,11 +138,11 @@ with col1:
 
     with st.container():
         st.markdown("**To:**")
-    for i, row in st.session_state.destinations.iterrows():
+    for j, row in st.session_state.destinations.iterrows():
         str_column, button_column = st.columns([4, 1])
         str_column.markdown(row["address"])
-        if button_column.button("X", key=f"del_dest_{i}"):
-            st.session_state.destinations = st.session_state.destinations.drop(index=i).reset_index(drop=True)
+        if button_column.button("X", key=f"del_dest_{j}"):
+            st.session_state.destinations = st.session_state.destinations.drop(index=j).reset_index(drop=True)
             st.rerun()
     st.divider()        
 
