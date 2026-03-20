@@ -40,34 +40,32 @@ def pre_processing(city, city_file, country, destination_name, osm_path, gtfs_pa
     bbox = f"{west},{south},{east},{north}"
     bbox_box = box(west, south, east, north)
 
-    # clip OSM file
+    # clip OSM file, error if Osmium is not available
     if osmium_avail == "True":
         print("Clipping OSM data to administrative boundary...")
         osm_path = Path(f"data/osm/{city_file}.osm.pbf")
         osmium_path = shutil.which("osmium")
 
         if osmium_path is None:
-            raise RuntimeError("osmium not found. Please install osmium-tool and ensure it is on your PATH.\nmacOS:  brew install osmium-tool\nLinux:  sudo apt install osmium-tool\nconda:  conda install -c conda-forge osmium-tool")
+            raise RuntimeError("Osmium not found. Please install osmium-tool and ensure it is on your PATH.\nmacOS:  brew install osmium-tool\nLinux:  sudo apt install osmium-tool\nconda:  conda install -c conda-forge osmium-tool." \
+            "If you are on Windows, use the precompiled city-level osm.pbf files provided through the university cloud and use '--osmium False'.")
 
         subprocess.run([osmium_path, "extract", "-b", bbox, "-o", str(osm_path), "data/osm/switzerland-latest.osm.pbf", "--overwrite"], check=True)
     
-    # get buildings
+    ##### get buildings
+    # 1. load clipped OSM file
+    # 2. extract buildings
+    # 3. match crs, fix geometries, drop empty
+    # 4. Keep buildings within boundary
     print(f"\nGetting building polygons from OSM.\n")
-    # load clipped OSM file
+
     osm = OSM(f"data/osm/{city_file}.osm.pbf")
     buildings = osm.get_buildings()
-    # match crs
     buildings = buildings.to_crs(boundary.crs)
-
-    # repair invalid geometries
     buildings["geometry"] = buildings.geometry.apply(make_valid)
     boundary["geometry"] = boundary.geometry.apply(make_valid)
-
-    # optional: drop empties
-    buildings = buildings[~buildings.geometry.is_empty & buildings.geometry.notna()].copy()
-    boundary = boundary[~boundary.geometry.is_empty & boundary.geometry.notna()].copy()
-
-    # only keep buildings within administrative boundary
+    # buildings = buildings[~buildings.geometry.is_empty & buildings.geometry.notna()].copy()
+    # boundary = boundary[~boundary.geometry.is_empty & boundary.geometry.notna()].copy()
     buildings = gpd.clip(buildings, boundary).copy()
 
     # get OSM-defined center points, assign the first one with point geometry and matching name (city) as center
@@ -80,19 +78,18 @@ def pre_processing(city, city_file, country, destination_name, osm_path, gtfs_pa
     print(f"\nFixing GTFS-feed for {city}.\n")
     fix_gtfs(bbox_box, city_file, gtfs_path, coord_crs)
 
-    # Create transport network
+    # Create r5py transport network
     transport_network = r5py.TransportNetwork(f"data/osm/{city_file}.osm.pbf", [f"data/gtfs/gtfs-{city_file}.zip"])
 
-    # Use representative point for routing, snap to transport network (make reachable)
+    # Use representative point for routing (both irigins and center), snap to transport network (make reachable)
+    # ...drop if cannot be snapped to network 
     origins = buildings.copy()
     origins["geometry"] = origins.geometry.representative_point()
     origins["geometry"] = transport_network.snap_to_network(origins["geometry"])
 
-    # Snap city center to transport network (make reachable)
     center_dest = center.copy()
     center_dest["geometry"] = transport_network.snap_to_network(center_dest["geometry"])
     
-    # if origin / center could not be snapped to network, drop row
     origins = origins[origins.geometry.is_empty == False].copy()
     center_dest = center_dest[center_dest.geometry.is_empty == False].copy()
 
@@ -102,5 +99,3 @@ def pre_processing(city, city_file, country, destination_name, osm_path, gtfs_pa
     center_dest.to_file(f"data/gpkg/{city_file}_data.gpkg", layer="destinations", driver="GPKG")
 
     return boundary, buildings, origins, center_dest
-
-

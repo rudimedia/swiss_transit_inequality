@@ -30,11 +30,13 @@ Please, first of all download two files: Open Street Map data for Switzerland (~
 
 1. Download GTFS from [here](https://data.opentransportdata.swiss/en/dataset/timetable-2025-gtfs2020). Search for "GTFS_FP2025_2024-09-02.zip" and download. Alternatively, scroll to the very bottom, that should be the one. Do not change the filename.
 
-2. Copy your 'gtfs_fp2025_2024-09-02.zip' file into `data/gtfs/`. Do not rename it.
+2. Copy your 'gtfs_fp2025_2024-09-02.zip' file into `data/gtfs/`. Do not rename it, and do not unzip it.
 
-3. Download Open Street Map data for Switzerland from [Geofabrik here](https://download.geofabrik.de/europe/switzerland.html) under "Commonly Used Formats", download "switzerland-latest.osm.pbf". This will not be the default name after download. **Change the filename** to "switzerland-latest.osm.pbf". 
-    > [!NOTE]
-    > If you are on Windows and not willing to run WLS (or need to be able to do this in 10min or less) please resort to using already clipped OSM files available [here](https://cloud.uni-konstanz.de/index.php/s/fG2qBLoCbnsyncs). They are only ~70MB in size. If you use these, please specify "--osmium False" every time you run `integrated.py´.
+3.  > [!WARNING]
+    > If you are on Windows and not willing to run WLS (or need to be able to do this in 10min or less) please resort to using already clipped OSM files available [here](https://cloud.uni-konstanz.de/index.php/s/fG2qBLoCbnsyncs). They are only ~70MB in size. If you use these, please specify "--osmium False" every time you run `integrated.py´. Unzip the archive from the University Cloud and proceed with (4). 
+    
+    **Otherwise**: Download Open Street Map data for Switzerland from [Geofabrik here](https://download.geofabrik.de/europe/switzerland.html) under "Commonly Used Formats", download "switzerland-latest.osm.pbf". This will not be the default name after download. **Change the filename** to "switzerland-latest.osm.pbf". 
+
 
 4. Copy your 'switzerland-latest.osm.pbf' (or 'Bern.osm.pbf', 'Zürich.osm.pbf' and 'Solothurn.osm.pbf' respectively) into the folder into which you cloned the github repository / have the .py files from the github repository located.
 
