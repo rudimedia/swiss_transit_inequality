@@ -43,21 +43,22 @@ I have not found a good (installable) way to process OSM data from within python
 
 The function returns the boundary, buildings, origins and the the center point for the city as geodataframes to `integrated.py`.
 
-The second function, `origins_to_schools` maps origins to the closest school within their school district. I use official data from the cities of Bern and Zürich for the locations of schools, but only Bern consistently specifies the type of a school, thus I do not filter by this information. This then makes the results a bit less interesting because yes, sure, it is easy to get to *any* school from most location, just not maybe the one you are interested in. The function obeys mappings of origins to school districts (for which the data is also provided by the cities' open data platforms). I use geopandas' `sjoin()` function to merge origins to schools, which is very fast. The function returns the origins with an identifier for their nearest school added, as well as the locations of the schools where the former then can be used as origins and the latter as destinations for routing in later steps.
+The second function, `origins_to_schools` maps origins to the closest school within their school district. I use official data from the cities of Bern and Zürich for the locations of schools, but only Bern consistently specifies the type of a school, thus I do not filter by this information. This then makes the results a bit less interesting because yes, sure, it is easy to get to *any* school from most location, just not maybe the one you are interested in. The function obeys mappings of origins to school districts (for which the data is also provided by the cities' open data platforms). I use geopandas' `sjoin()` function to merge origins to schools, which is very fast. The function returns the origins with an identifier for their nearest school added, as well as the locations of the schools where the former then can be used as origins and the latter as destinations for routing in later steps. 
+
+## sampler.py
+
+This script consists of a single function, `grid_sampler()` which starts off by creating a grid of cells with width=height (as specified by the user through the `--cell int` option) from the bounding box of the city of analysis.  
 
 ## router.py
 
-This script handles everything regarding transit routing and high-level tasks for car and walk routing. It specifies 
+This script handles everything regarding transit routing and high-level tasks for car and walk routing and defines the three functions `route_center()`, `route_schools()` and `route_custom()` to perform similar tasks with slightly different requirements. Here, to be fair, they may could have been written as one function is more if else statements, but I felt like this provided better readability.
 
+First things first, `route_center()` takes in multiple origins and one destination from the previous steps and computes transit, car, and walking times for a variety of timepoints across a day (between 6:00am and 02:00am (next day)). Transit routes are computed for every origin whereas whether car or walking routes are computed depends on distance of an origin to the destination. Transit routing is performed by r5py's `TravelTimeMatrix()` function, which uses an adaptation of the RAPTOR algorithm to RAPidly (is that where it got its name?) compute transit routes between origins and destinations. While it is very efficient at doing so, it is not at all efficient at computing car and walking routes. I am not sure why that is, but I have thus decided to use OSRM to accomplish this task. 
 
 
 # Innovation
 <!-- Detail what are the new components of your project that have not
-been covered in class. Give details on what you learned in terms of algorithms,
-packages, resources, etc. The level of learning in this new skill development will
-be graded. What is not graded is the novelty of the project as if it was a research
-project, it is OK to rebuild something that already exists. You must show clearly
-what you have developed yourself and what you use from the work of others. -->
+been covered in class. Give details on what you learned in terms of algorithms, packages, resources, etc. The level of learning in this new skill development will be graded. What is not graded is the novelty of the project as if it was a research project, it is OK to rebuild something that already exists. You must show clearly what you have developed yourself and what you use from the work of others. -->
 
 To start off: Most things I have newly learned are packages or tools I use. Most of the code I use with them is derived from the documentation of said tools, e.g. example usage and or guides from [geopandas](https://geopandas.org/en/stable/docs.html), [osmnx](https://osmnx.readthedocs.io/en/stable/), [pydeck](https://deckgl.readthedocs.io/en/latest/), [r5py](https://r5py.readthedocs.io/stable/), [OSRM (Docker-Version)](https://hub.docker.com/r/osrm/osrm-backend/) and the [Docker SDK](https://docker-py.readthedocs.io/en/stable/) itself.
 

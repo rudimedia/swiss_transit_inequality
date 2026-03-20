@@ -155,6 +155,7 @@ def origins_to_schools(city, origins_sample, metric_crs=2056, coord_crs=4326):
         # school districts
         schools_dist = gpd.read_file(f"data/gpkg/schulkreise_zuerich.gpkg", layer="stzh.adm_schulkreise_a")
 
+    # clean indices
     schools_dist = schools_dist.to_crs(metric_crs).reset_index(drop=True)
     schools_geo = schools_geo.to_crs(metric_crs).reset_index(drop=True)
     origins_sample = origins_sample.to_crs(metric_crs).reset_index(drop=True)
@@ -163,7 +164,7 @@ def origins_to_schools(city, origins_sample, metric_crs=2056, coord_crs=4326):
     origins_to_dists = gpd.sjoin(origins_sample, schools_dist[["objid", "geometry"]], how="left", predicate="within").drop(columns=["index_right"])
     schools_to_dists = gpd.sjoin(schools_geo, schools_dist[["objid", "geometry"]], how="left", predicate="within").drop(columns=["index_right"])
 
-    # join origins to schools where they share the same district
+    ### for each district, join origins to their closest school within that district
     origins_sample_with_nearest_school_list = []
 
     for district_id, orig_group in origins_to_dists.groupby("objid"):
@@ -171,6 +172,7 @@ def origins_to_schools(city, origins_sample, metric_crs=2056, coord_crs=4326):
         district_origins_with_school = gpd.sjoin_nearest(orig_group, schools_group[["objectid", "einheit", "geometry"]], how="left", distance_col="distance_to_dest_meters")
         origins_sample_with_nearest_school_list.append(district_origins_with_school)
 
+    # rowbind mapped data for all districts
     origins_sample_with_nearest_school = gpd.GeoDataFrame(pd.concat(origins_sample_with_nearest_school_list, ignore_index=True), crs=metric_crs)
     origins_sample_with_nearest_school = origins_sample_with_nearest_school.rename(columns={"objectid": "school_id"}).to_crs(coord_crs)
     
