@@ -27,3 +27,8 @@ Thumbs.db
 
 # VS Code
 .vscode/
+
+# Keep specific data files
+!data/parquet/oevschul_soe.parquet
+!data/gpkg/schulen_zuerich.gpkg
+!data/gpkg/schulkreise_zuerich.gpkg
