@@ -34,7 +34,7 @@ Please, first of all download two files: Open Street Map data for Switzerland (~
 
 3. Download Open Street Map data for Switzerland from [Geofabrik here](https://download.geofabrik.de/europe/switzerland.html) under "Commonly Used Formats", download "switzerland-latest.osm.pbf". This will not be the default name after download. **Change the filename** to "switzerland-latest.osm.pbf". 
     > [!NOTE]
-    > If you are on Windows and not willing to run WLS (or need to be able to do this in 10min or less) please resort to using already clipped OSM files available [here](https://drive.google.com/drive/folders/1Mp1g-txBi5JBEO_vjZGFSqDMNmeigjJO?usp=sharing). They are only ~70MB in size. If you use these, please specify "--osmium False" every time you run `integrated.py´.
+    > If you are on Windows and not willing to run WLS (or need to be able to do this in 10min or less) please resort to using already clipped OSM files available [here](https://cloud.uni-konstanz.de/index.php/s/fG2qBLoCbnsyncs). They are only ~70MB in size. If you use these, please specify "--osmium False" every time you run `integrated.py´.
 
 4. Copy your 'switzerland-latest.osm.pbf' (or 'Bern.osm.pbf', 'Zürich.osm.pbf' and 'Solothurn.osm.pbf' respectively) into the folder into which you cloned the github repository / have the .py files from the github repository located.
 
@@ -55,7 +55,7 @@ Troubleshooting:
 
 The scripts have (2) external requirements. Firstly, a version of [Osmium Tool](https://osmcode.org/osmium-tool/) is necessary to do local processing of Open Street Map data. Secondly, Docker is necessary to perform OSRM routing.
 
-> Osmium Tool is not available for Windows. If you wish to use it anyways, resort to using WLS (broadly described below). I would recommend just using the precomputed clipped OSM files found [here](https://drive.google.com/drive/folders/1Mp1g-txBi5JBEO_vjZGFSqDMNmeigjJO?usp=sharing) and copying them into the correct folder `data/osm`. Once done that, every time you run `integrated.py` include `--osmium False` in your calls to avoid errors. This will work fine. I vouch for the code clipping the OSM file to work, if need be by demonstrating in person. In any case, use Linux. Thank you for listening to my TedTalk. 
+> Osmium Tool is not available for Windows. If you wish to use it anyways, resort to using WLS (broadly described below). I would recommend just using the precomputed clipped OSM files found [here](https://cloud.uni-konstanz.de/index.php/s/fG2qBLoCbnsyncs) and copying them into the correct folder `data/osm`. Once done that, every time you run `integrated.py` include `--osmium False` in your calls to avoid errors. This will work fine. I vouch for the code clipping the OSM file to work, if need be by demonstrating in person. In any case, use Linux. Thank you for listening to my TedTalk. 
 
 ## Install Osmium Tool
 ### macOS
@@ -84,7 +84,7 @@ conda install -c conda-forge osmium-tool
 
 ### Windows
 
-Unfortunately, Osmium-Tool is not available for Windows. I only found that out when I had already written all the scripts. It is possible to use Osmium-Tool via WSL which I will describe below, but if you are not feeling like doing so, please use the precomputed clipped osm.pbf files for Bern, Zürich, and Solothurn which I have linked to [here](https://drive.google.com/drive/folders/1Mp1g-txBi5JBEO_vjZGFSqDMNmeigjJO?usp=sharing) (~70MB in total) and put them in the appropriate folder. From you working directory that should be "data/osm/". In that case, please run `python integrated.py` with `--osmium False` at all times. 
+Unfortunately, Osmium-Tool is not available for Windows. I only found that out when I had already written all the scripts. It is possible to use Osmium-Tool via WSL which I will describe below, but if you are not feeling like doing so, please use the precomputed clipped osm.pbf files for Bern, Zürich, and Solothurn which I have linked to [here](https://cloud.uni-konstanz.de/index.php/s/fG2qBLoCbnsyncs) (~70MB in total) and put them in the appropriate folder. From you working directory that should be "data/osm/". In that case, please run `python integrated.py` with `--osmium False` at all times. 
 
 If you do wanna use WSL:
 1. Install WSL (For more information see [this Microsoft helppage](https://learn.microsoft.com/de-de/windows/wsl/install))
