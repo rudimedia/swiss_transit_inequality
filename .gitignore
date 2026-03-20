@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+.venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data
+data/osm/
+data/gtfs/
+data/pickle/
+cache/
+
+# Large files
+*.osm.pbf
+*.zip
+*.pkl
+*.parquet
+*.gpkg
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
