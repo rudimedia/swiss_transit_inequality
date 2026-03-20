@@ -8,16 +8,16 @@
 2. `cd` into your chosen folder with the contents in them
 3. Proceed
 
-## Download conda / miniforge
+## Download miniconda / miniforge
 
-You do not need to install both. Miniforge is sufficient for this project and should take less time to install / use space on your disk. Conda is more foolproof. Resort to conda if miniforge does not work for you.
+You do not need to install both. Miniforge is sufficient for this project and should take less time to install / use space on your disk. Miniconda has better support. Resort to miniconda if miniforge does not work for you.
 
 Before doing so, check whether you happen to have it installed already:
 ```
 conda --version
 ```
 
-### Conda
+### Conda / Miniconda
 1. To install conda, please resort to their [installation guide](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html). You can choose from the full anaconda install and miniconda. Miniconda should be sufficient for this project, resort to the full conda install if that does not work for you.
 
 ### Miniforge
