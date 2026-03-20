@@ -26,9 +26,9 @@ def main():
 
     # Import only if script is run as itself (slower import)
     print("Importing required libraries...")
-    from pre_function import pre_processing
+    from pre_function import pre_processing, origins_to_schools
     from sampler import grid_sampler
-    from router import origins_to_schools, route_schools, route_center
+    from router import route_schools, route_center
     from plotter import plot_list, plotter
     from geopandas import read_file, list_layers
 

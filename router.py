@@ -10,66 +10,8 @@ from osrm_routing import osrm_process, osrm_process_schools
 
 import streamlit as st
 
-# origins_to_schools()
-# -----------------------
-# Maps sampled origins to their closest school,
-# respects allocation of origins to school districts.
-# -----------------------
-# Input:
-# - city
-# - METRIC_CRS
-# - COORD_CRS
-# - origins_sample
-# -----------------------
-# Returns:
-# - origins_sample_with_nearest_school
-
 # suppressing JAVA warning which are triggered by r5py internals
 os.environ["_JAVA_OPTIONS"] = "--enable-native-access=ALL-UNNAMED"
-
-def origins_to_schools(city, origins_sample, metric_crs=2056, coord_crs=4326):
-
-    print(f"Matching origins to schools conditional on school district...")
-
-    # load appropriate school / school district datasets depending on city
-    if city == "Bern":
-        # schools
-        schools_geo = gpd.read_parquet("data/parquet/oevschul_soe.parquet").to_crs(coord_crs)
-        schools_geo.rename(columns={"soename": "einheit"}, inplace=True)
-
-        # school districts
-        district_url = "https://map.bern.ch/arcgis/rest/services/Geoportal/Schulkreise/MapServer/0/query?where=1=1&outFields=*&f=geojson"
-        schools_dist = gpd.read_file(district_url).to_crs(coord_crs)
-        schools_dist.rename(columns={"Nummer": "objid"}, inplace=True)
-        schools_dist.rename(columns={"Name": "name"}, inplace=True)
-    elif city == "Zürich":
-        # schools
-        schools_geo = gpd.read_file(f"data/gpkg/schulen_zuerich.gpkg", layer="stzh.poi_volksschule_view")
-
-        # school districts
-        schools_dist = gpd.read_file(f"data/gpkg/schulkreise_zuerich.gpkg", layer="stzh.adm_schulkreise_a")
-
-    schools_dist = schools_dist.to_crs(metric_crs).reset_index(drop=True)
-    schools_geo = schools_geo.to_crs(metric_crs).reset_index(drop=True)
-    origins_sample = origins_sample.to_crs(metric_crs).reset_index(drop=True)
-
-    # join both origins and schools to their district
-    origins_to_dists = gpd.sjoin(origins_sample, schools_dist[["objid", "geometry"]], how="left", predicate="within").drop(columns=["index_right"])
-    schools_to_dists = gpd.sjoin(schools_geo, schools_dist[["objid", "geometry"]], how="left", predicate="within").drop(columns=["index_right"])
-
-    # join origins to schools where they share the same district
-    origins_sample_with_nearest_school_list = []
-
-    for district_id, orig_group in origins_to_dists.groupby("objid"):
-        schools_group = schools_to_dists[schools_to_dists["objid"] == district_id]
-        district_origins_with_school = gpd.sjoin_nearest(orig_group, schools_group[["objectid", "einheit", "geometry"]], how="left", distance_col="distance_to_dest_meters")
-        origins_sample_with_nearest_school_list.append(district_origins_with_school)
-
-    origins_sample_with_nearest_school = gpd.GeoDataFrame(pd.concat(origins_sample_with_nearest_school_list, ignore_index=True), crs=metric_crs)
-    origins_sample_with_nearest_school = origins_sample_with_nearest_school.rename(columns={"objectid": "school_id"}).to_crs(coord_crs)
-    
-    return origins_sample_with_nearest_school, schools_geo
-
 
 # route_schools()
 # -----------------------
