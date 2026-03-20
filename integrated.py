@@ -113,7 +113,7 @@ def main():
 
     # copy user files into correct subdirectories
     # verify copying was successfull 
-    required_files = {f"{COUNTRY.lower()}-latest.osm.pbf": OSM_PATH, "gtfs_fp2025_2024-09-02.zip": GTFS_PATH}
+    required_files = {f"{COUNTRY.lower()}-latest.osm.pbf": OSM_PATH, "gtfs_fp2025_2024-09-02.zip": GTFS_PATH, "bern.osm.pbf": "data/osm/bern.osm.pbf", "zuerich.osm.pbf": "data/osm/zuerich.osm.pbf", "solothurn.osm.pbf": "data/osm/solothurn.osm.pbf"}
 
     for file, out_file in required_files.items():
 

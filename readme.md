@@ -196,6 +196,10 @@ options:
                         Plot any of ['day', 'night', 'school']. Default is all.
 ```
 
+> [!NOTE] Make sure Docker is running!
+
+> [!WARNING] If you are using Windows without Osmium Tool (not using WSL), make sure to add `--osmium False` to every example below to avoid the script trying to use what doesn't exist.
+
 Example usage (1):
 ```
 python integrated.py --city Zürich --date 2025-03-15 --cell 200 --plot day night
