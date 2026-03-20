@@ -6,11 +6,7 @@
 
 1. Clone this github repository or download its contents into a folder of your choice.
 2. `cd` into your chosen folder with the contents in them
-3. Create the folder structure by running `setup_folder.py` like this:
-    ```
-    python setup_folder.py
-    ```
-4. Proceed
+3. Proceed
 
 ## Download conda / miniforge
 
@@ -40,7 +36,7 @@ Please, first of all download two files: Open Street Map data for Switzerland (~
     > [!NOTE]
     > If you are on Windows and not willing to run WLS (or need to be able to do this in 10min or less) please resort to using already clipped OSM files available [here](https://drive.google.com/drive/folders/1Mp1g-txBi5JBEO_vjZGFSqDMNmeigjJO?usp=sharing). They are only ~70MB in size. If you use these, please specify "--osmium False" every time you run `integrated.py´.
 
-4. Copy your 'switzerland-latest.osm.pbf' (or 'Bern.osm.pbf', 'Zürich.osm.pbf' and 'Solothurn.osm.pbf' respectively) into `data/osm/`
+4. Copy your 'switzerland-latest.osm.pbf' (or 'Bern.osm.pbf', 'Zürich.osm.pbf' and 'Solothurn.osm.pbf' respectively) into the folder into which you cloned the github repository / have the .py files from the github repository located.
 
 ## Create environment
 
