@@ -1,5 +1,5 @@
 import geopandas as gpd
-from ckdtree import ckdTree2
+from imputer import KDTree_imputer
 from pyrosm import OSM
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
@@ -48,7 +48,7 @@ def plot_list(city_file, boundary, origins, buildings, which_plots, metric_crs=2
     # impute values for unsampled points, approximate nearest neighbor. Weight by inverse distance
     for i, matrix in enumerate(to_plot):
         plot_type = matrix["plot_type"].iloc[0]
-        all_points_imputed = ckdTree2(city_file, matrix, origins, buildings, metric_crs)
+        all_points_imputed = KDTree_imputer(city_file, matrix, origins, buildings, metric_crs)
         all_points_imputed["plot_type"] = plot_type
 
         # precompute geojson for interactive visualisation

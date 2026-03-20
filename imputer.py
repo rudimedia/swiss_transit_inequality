@@ -1,9 +1,9 @@
-from scipy.spatial import cKDTree
+from scipy.spatial import KDTree
 import pandas as pd
 import geopandas as gpd
 import numpy as np
 
-def ckdTree2(city_file, travel_time_matrix, origins, buildings, metric_crs=25832):
+def KDTree_imputer(city_file, travel_time_matrix, origins, buildings, metric_crs=25832):
     # Merge travel time matrix with origin geometries; unmatched origins are kept (right join)
     ttm = pd.DataFrame(travel_time_matrix).merge(
         origins[["id", "geometry"]],
@@ -22,7 +22,7 @@ def ckdTree2(city_file, travel_time_matrix, origins, buildings, metric_crs=25832
     unsampled = ttm["is_sampled"] == False
 
     if unsampled.any():
-        tree = cKDTree(sampled[["x", "y"]].values)
+        tree = KDTree(sampled[["x", "y"]].values)
         distances, point_ids = tree.query(ttm.loc[unsampled, ["x", "y"]].values, k=5)
 
         for col in ["travel_time_p50", "spread", "travel_time", "travel_time_p5", "travel_time_p95"]:
