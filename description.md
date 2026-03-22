@@ -4,26 +4,7 @@ Daniel Keim's lab published a tool called "Mobility Maps" which I found interest
 
 # Design
 
-**Files (and their uses):**
-- integrated.py, calls:
-    - pre_function.py, calls:
-        - import_zipfile.py
-    - sampler.py
-    - router.py, calls:
-        - osrm_routing
-    - plotter.py, calls:
-        - imputer
-
-- custom_routing.py, calls:
-    - router.py, calls:
-        - osrm_routing 
-        - integrated.py 
-
-- app.py, calls:
-    - integrated.py 
-
-**Dependencies between scripts:**
-- output of integrated.py is required for usage of app.py and custom_routing.py
+![Diagram of program design](add_plots/diagram.jpg)
 
 ## integrated.py
 
@@ -33,7 +14,7 @@ Once this script has run through, all necessary data for running `app.py` and `c
 
 ## pre_function.py
 
-This script consists of a two functions of which the mosre important one is `pre_processing()` which is called by `integrated.py`. It retrieves all necessary data via [OSMNX](https://osmnx.readthedocs.io/en/stable/) (which itself calls the [Nominatim API](https://nominatim.org/), an open-source geocoding API which works with OpenStreetMap Data) and from local storage. While OSMNX is able to provide all data (except for the GTFS feed) itself, I choose to instead rely on the local copy of OSM data wherever possible and merely "abuse" osmnx for its simple Nominatim integration which allows me to easily geocode places. In this case, I only use it to extract the approximate boundary for the specified city, which is easier and more flexible than accounting for all possible cases in the administrative boundaries of the local OSM data. It also, most often, provides the "wanted" result even if the specification of the city is not very well formulated. Additionally, it allows for quite flexible switching between administrative levels: While specifying "Zürich" yields boundaries for the city Zurich, specifying "Kanton Zürich" or "county='Zürich', country='Switzerland'" would yield the boundary for the Kanton Zurich, all done through natural language without requiring to specify administrative levels manually. 
+This script consists of a two functions of which the more important one is `pre_processing()` which is called by `integrated.py`. It retrieves all necessary data via [OSMNX](https://osmnx.readthedocs.io/en/stable/) (which itself calls the [Nominatim API](https://nominatim.org/), an open-source geocoding API which works with OpenStreetMap Data) and from local storage. While OSMNX is able to provide all data (except for the GTFS feed) itself, I choose to instead rely on the local copy of OSM data wherever possible and merely "abuse" osmnx for its simple Nominatim integration which allows me to easily geocode places. In this case, I only use it to extract the approximate boundary for the specified city, which is easier and more flexible than accounting for all possible cases in the administrative boundaries of the local OSM data. It also, most often, provides the "wanted" result even if the specification of the city is not very well formulated. Additionally, it allows for quite flexible switching between administrative levels: While specifying "Zürich" yields boundaries for the city Zurich, specifying "Kanton Zürich" or "county='Zürich', country='Switzerland'" would yield the boundary for the Kanton Zurich, all done through natural language without requiring to specify administrative levels manually. 
 
 I have not found a good (installable) way to process OSM data from within python, which is why I use the external tool Osmium Tool. I call it through subprocess (which I looked up how to do that, in general) and the result is stored as a .osm.pbf file which than can be used by the following functions. I figured out how to extract a boundary from bounding box coordinates from its documentation and basically construct the terminals tring in Python. I then extract buildings and places from the local OSM data using pyrosm, which allows filtering by tags. They are also converted to point geometries using a "representative" point within their polygon which is not quite the centroid but rather something guaranteed to obey its boundaries. I don't quite know how that works, but geopandas handles it gracefully. Separate geodataframes are kept with either the polygon (buildings) *or* the point (origins) as their geometry because for some subsequent operations, geopandas does not allow for multiple geometry columns. I define buildings as *any and all* buildings cartographed, including huts in the woods and military bases. Public transport should not discriminate. These are then filtered and processed so they do not cause errors later on and made "reachable" so a point cannot lie in the middle of a sea without an island underneath it.  This usually doesn't do anything and acts as a safety net. This "reachability" processing can only be done after having computed a transport network using r5py. This is only possible if there is a valid GTFS-feed available, so before doing this, 'pre_processing()' calls 'fix_gtfs' from 'import_zipfile'. More on how that works later. 
 
