@@ -249,10 +249,10 @@ def main():
         # only route to schools if specified
         if schools == "True":
 
-            travel_time_matrix_school = route_schools(city_file, date, origins_sample_with_nearest_school, schools_geo, COORD_CRS)
+            route_schools(city_file, date, origins_sample_with_nearest_school, schools_geo)
 
         # always route to center   
-        travel_time_matrix = route_center(city_file, date, origins_sample, destinations, METRIC_CRS)
+        route_center(city_file, date, origins_sample, destinations, METRIC_CRS)
 
     else:
 
@@ -280,7 +280,7 @@ def main():
     # - plot_list
     # - transit_lines
 
-    if "plot" not in skip:
+    if "plotting" not in skip:
 
         # Handle misspecification by the user
         if "travel_time_matrix_center" not in list_layers(f"data/gpkg/{city_file}_data.gpkg")["name"].values and "travel_time_matrix_school" not in list_layers(f"data/gpkg/{city_file}_data.gpkg")["name"].values:

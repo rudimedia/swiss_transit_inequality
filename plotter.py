@@ -4,16 +4,44 @@ from pyrosm import OSM
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
+# group_travel_time_matrix()
+# -----------------------
+# Groups travel times computed for separate departure times by origin ID, uses:
+# minimum value for best case, median for median case, maximum for worst case, 
+# median for driving / walking travel time (should be equal across all departure times). 
+# -----------------------
+# Input:
+# - df: travel_time_matrix
+# -----------------------
+# Returns:
+# - df: travel_time_matrix
+
 def group_travel_time_matrix(travel_time_matrix):
-    travel_time_matrix = travel_time_matrix.groupby("from_id").agg(
-        spread = ("spread", "max"),
+    travel_time_matrix = travel_time_matrix.groupby("from_id").agg(spread = ("spread", "max"),
         travel_time_p5 = ("travel_time_p5", "min"),
         travel_time_p50 = ("travel_time_p50", "median"),
         travel_time_p95 = ("travel_time_p95", "max"),
-        travel_time = ("travel_time", "median"),
-    ).reset_index()
+        travel_time = ("travel_time", "median")).reset_index()
 
     return travel_time_matrix
+
+# plot_list()
+# -----------------------
+# Checks which plots are supposed to be plotted given user input, creates separate travel time matrices per time of day / school
+# using group_travel_time_matrix(), imputes travel times for each plot type using KDTree_imputer(), returns list of plot-ready 
+# travel time matrices. Also gets transit line shapes from local OSM data, returns as geodataframe.
+# -----------------------
+# Input:
+# - str: city_file
+# - gdf: boundary
+# - gdf: origins
+# - gdf: buildings
+# - list: which_plots
+# - int: METRIC_CRS
+# -----------------------
+# Returns:
+# - list: to_plot
+# - gdf: transit_lines
 
 def plot_list(city_file, boundary, origins, buildings, which_plots, metric_crs=2056):
     
@@ -43,23 +71,30 @@ def plot_list(city_file, boundary, origins, buildings, which_plots, metric_crs=2
             travel_time_matrix_school["plot_type"] = "school"
             to_plot.append(travel_time_matrix_school)
     
-    all_points_imputed_list = []
 
     # impute values for unsampled points, approximate nearest neighbor. Weight by inverse distance
+    all_points_imputed_list = []
+
     for i, matrix in enumerate(to_plot):
+        
+        # get plot type from first entry
         plot_type = matrix["plot_type"].iloc[0]
+
+        # Impute values for unsampled points
         all_points_imputed = KDTree_imputer(city_file, matrix, origins, buildings, metric_crs)
+
+        # Add identifier for plot type to all origins (irrespective unsampled / sampled)
         all_points_imputed["plot_type"] = plot_type
 
-        # precompute geojson for interactive visualisation
+        # precompute geojson for pydeck visualisation
         all_points_imputed["geometry_plot"] = None
         for j, row in all_points_imputed.iterrows():
+
             all_points_imputed.at[j, "geometry_plot"] = row["geometry_poly"].representative_point().__geo_interface__
 
+        # replace raw travel time matrix with imputed matrix
         to_plot[i] = all_points_imputed
         all_points_imputed_list.append(all_points_imputed)  
-
-        to_plot[i] = all_points_imputed
 
     # save plottable dataframes as single geodataframe
     gpd.pd.concat(all_points_imputed_list, ignore_index=True).to_pickle(f"data/pickle/{city_file}_to_plot.pkl")    
@@ -74,6 +109,8 @@ def plot_list(city_file, boundary, origins, buildings, which_plots, metric_crs=2
 
 
 # plotter()
+# -----------------------
+# Plots all requested plots for each travel time matrix in to_plot, outputs as pdf.
 # -----------------------
 # Input:
 # - str: city_file
@@ -98,10 +135,12 @@ def plotter(city_file, to_plot, transit_lines):
     
     print("Plotting...")
 
+    # Create several plots for each matrix in to_plot
     for matrix in to_plot:
 
         print("...", matrix["plot_type"].dropna().iloc[0])
 
+        # Create separate plots per dependent variable (travel time variety)
         for col in ["ratio_p5", "ratio_p50", "ratio_p95", "spread"]:
 
             # scale limits for ratio but not spread
@@ -138,7 +177,7 @@ def plotter(city_file, to_plot, transit_lines):
             plt.setp(color_legend.yaxis.get_ticklabels(), color="white")
             color_legend.set_facecolor("black")   
 
+            # save plot
             plt.savefig(f"plots/{city_file}/{city_file}_{matrix["plot_type"].dropna().iloc[0]}_{col}.pdf", bbox_inches="tight", dpi=300)
 
-    return f"\nDone! Plots can be found under '~/plots/{city_file}/'.\n"           
-                  
+    return f"\nDone! Plots can be found under '~/plots/{city_file}/'.\n"                    

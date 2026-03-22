@@ -68,8 +68,9 @@ def pre_processing(city, city_file, country, destination_name, osm_path, gtfs_pa
         if osmium_path is None:
             raise RuntimeError("Osmium not found. Please install osmium-tool and ensure it is on your PATH.\nmacOS:  brew install osmium-tool\nLinux:  sudo apt install osmium-tool\nconda:  conda install -c conda-forge osmium-tool." \
             "If you are on Windows, use the precompiled city-level osm.pbf files provided through the university cloud and use '--osmium False'.")
-
+        
         subprocess.run([osmium_path, "extract", "-b", bbox, "-o", str(osm_path), "data/osm/switzerland-latest.osm.pbf", "--overwrite"], check=True)
+        
     
     ##### get buildings
     # 1. load clipped OSM file
@@ -80,11 +81,15 @@ def pre_processing(city, city_file, country, destination_name, osm_path, gtfs_pa
 
     osm = OSM(f"data/osm/{city_file}.osm.pbf")
     buildings = osm.get_buildings()
+    
     buildings = buildings.to_crs(boundary.crs)
+
     buildings["geometry"] = buildings.geometry.apply(make_valid)
     boundary["geometry"] = boundary.geometry.apply(make_valid)
-    # buildings = buildings[~buildings.geometry.is_empty & buildings.geometry.notna()].copy()
-    # boundary = boundary[~boundary.geometry.is_empty & boundary.geometry.notna()].copy()
+
+    buildings = buildings[~buildings.geometry.is_empty & buildings.geometry.notna()].copy()
+    boundary = boundary[~boundary.geometry.is_empty & boundary.geometry.notna()].copy()
+
     buildings = gpd.clip(buildings, boundary).copy()
 
     # get OSM-defined center points, assign the first one with point geometry and matching name (city) as center
@@ -95,10 +100,10 @@ def pre_processing(city, city_file, country, destination_name, osm_path, gtfs_pa
 
     # Fixing GTFS-feed
     print(f"\nFixing GTFS-feed for {city}.\n")
-    fix_gtfs(bbox_box, city_file, gtfs_path, coord_crs)
+    path_to_new_gtfs = fix_gtfs(bbox_box, city_file, gtfs_path, coord_crs)
 
     # Create r5py transport network
-    transport_network = r5py.TransportNetwork(f"data/osm/{city_file}.osm.pbf", [f"data/gtfs/gtfs-{city_file}.zip"])
+    transport_network = r5py.TransportNetwork(f"data/osm/{city_file}.osm.pbf", [path_to_new_gtfs])
 
     # Use representative point for routing (both irigins and center), snap to transport network (make reachable)
     # ...drop if cannot be snapped to network 

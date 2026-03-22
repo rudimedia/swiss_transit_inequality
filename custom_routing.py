@@ -29,7 +29,6 @@ if "travel_time_matrix" not in st.session_state:
 # Let user select city, create filename-suitable version
 city = st.selectbox("City", ["Zürich", "Bern", "Solothurn"])
 
-##### FIX !!! ######
 if city is None:
     city = "Zürich"
 
@@ -62,7 +61,7 @@ with col2:
                 if len(st.session_state.origins) == 0:
                     id = 0
                 else:
-                    st.session_state.origins["id"].max() + 1
+                    id = st.session_state.origins["id"].max() + 1
 
                 # dataframe
                 curr_address = gpd.GeoDataFrame({"id": id, "address": [address]}, geometry=[Point(lon, lat)], crs=4326)
@@ -78,16 +77,16 @@ with col2:
         if address_dest:
             try:
                 # get coordinates from nominatim
-                lat, lon = ox.geocode(address_dest)
+                lat, lon = ox.geocode(f"{address_dest}, {city}")
 
                 # assign unique ID
                 if len(st.session_state.destinations) == 0:
                     id = 0
                 else:
-                    st.session_state.destinations["id"].max() + 1
+                    id = st.session_state.destinations["id"].max() + 1
 
                 # dataframe
-                curr_address = gpd.GeoDataFrame({"id": [len(st.session_state.destinations)], "address": [address_dest]}, geometry=[Point(lon, lat)], crs=4326)
+                curr_address = gpd.GeoDataFrame({"id": [id], "address": [address_dest]}, geometry=[Point(lon, lat)], crs=4326)
                 st.session_state.destinations = pd.concat([st.session_state.destinations, curr_address], ignore_index=True)
 
             except Exception:
