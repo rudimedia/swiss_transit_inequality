@@ -88,7 +88,7 @@ with col2:
     # Pydeck visualisation
     view_state = pdk.ViewState(latitude=bbox["lat"].iloc[0], longitude=bbox["lon"].iloc[0], zoom=14)
     layer = pdk.Layer("GeoJsonLayer", data=data, get_fill_color="color", opacity=1, get_radius=5, radius_min_pixels=3)
-    st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view_state, map_style="light",))
+    st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view_state, map_style="light"))
 
 # Column 3
 with col3:

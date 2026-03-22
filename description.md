@@ -1,6 +1,6 @@
 # Motivation
 
-xxx
+Daniel Keim's lab published a tool called "Mobility Maps" which I found interesting: They computed walking times to a nearest transit stop for all buildings in Germany. Fun, I thought, but not very helpful. If I were to be able to walk to my next transit stop within 5 minutes but the next bus would only pick me up in 5 hours, I better take the car or even walk. So I wanted to do something similar, but also routing actual travel times by transit times. This would allow me to observe difference between, and, most importantly, within cities for further analysis. Using sub-city-level sociodemographic data for example, differences in public transport coverage could be explained. So this is to be thought of as a gateway-tool for doing some (I think) pretty cool analyses. P.S.: The plots are also really pretty.
 
 # Design
 
@@ -139,8 +139,7 @@ This is the view of the streamlit app custom_routing.py which allows the user to
 
 # Outlook
 
-
-
+Processing GTFS-feed data was hard and I did not appreciate the lack of resources. Additionally, geocoded schools are relatively hard to find and the data quality (even though, or exactly because, from official sources) is lacking, for example not including information on the type of school, so school routing is unrealistically optimistic at the moment. Additionally, r5py seems to be inefficient at routing walking and driving, and OSRM seems to have overcome that issue, so using the latter to improve the former would be a great contribution. I would like to expand the coverage, maybe using manual destination coding, or somehow find a way to extract the "currently popular! regions which Google Maps is able to show in their app interface. Those would be great to use as destination measures. Combining the generated travel time ratios with sociodemographic data would be very interesting as well so I could perform some analyis.
 
 
 
