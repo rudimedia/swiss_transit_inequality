@@ -2,6 +2,22 @@ from shapely import box
 import geopandas as gpd
 import numpy as np
 
+# grid_sampler()
+# -----------------------
+# Takes rectangular boundary of a given area (e.g. city, Kanton), creates a grid for the boundary, where
+# where each cell spans cell_size x cell_size (in meters). 
+# -----------------------
+# Input:
+# - gdf: origins
+# - gdf: boundary
+# - int: cell_size
+# - int: METRIC_CRS
+# - int: COORD_CRS
+# -----------------------
+# Returns:
+# - gdf: origins_sample
+
+
 def grid_sampler(origins, boundary, cell_size=100, metric_crs=2056, coord_crs=4326):
 
     # get metric bounds for grid creation
@@ -11,12 +27,17 @@ def grid_sampler(origins, boundary, cell_size=100, metric_crs=2056, coord_crs=43
 
     # create grid from city boundary
     grid = []
+
     for x in np.arange(xmin, xmax, cell_size):
+
         for y in np.arange(ymin, ymax, cell_size):
-            grid.append(box(x, y, x+cell_size, y+cell_size))
+
+            grid.append(box(x, y, x + cell_size, y + cell_size))
+
+
     grid = gpd.GeoDataFrame(geometry=grid, crs=metric_crs).to_crs(coord_crs)
 
-    ### matching origins to their grid cell, then taking 2 samples (or 1 if no more available) from each grid cell
+    ### match origins to their grid cell, then taking 2 samples (or 1 if no more available) from each grid cell
     # getting middle point of each grid cell, matching origins to their cell
     grid["middle_point"] = grid.representative_point()
     origins_with_grid = gpd.sjoin(origins, grid, predicate="within")

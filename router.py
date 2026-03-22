@@ -23,17 +23,14 @@ os.environ["_JAVA_OPTIONS"] = "--enable-native-access=ALL-UNNAMED"
 # travel time by car (or if distance <500m) by foot.
 # -----------------------
 # Input:
-# - str: city
 # - str: city_file
+# - str: date
+# - gdf: origins_sample
+# - gdf: destinations
 # - int: METRIC_CRS
-# - int: COORD_CRS
-# - int: cell_size (meters)
-# - gdf: origins_sample_with_nearest_school
-# - gdf: boundary
-# - r5py: transport_network
 # -----------------------
 # Returns:
-# - df: travel_time_matrix_school
+# - df: travel_time_matrix_center
 
 def route_center(city_file, date, origins_sample, destinations, metric_crs=2056):
 
@@ -118,19 +115,16 @@ def route_center(city_file, date, origins_sample, destinations, metric_crs=2056)
 # travel time by car (or if distance <500m) by foot.
 # -----------------------
 # Input:
-# - str: city
 # - str: city_file
-# - int: METRIC_CRS
-# - int: COORD_CRS
-# - int: cell_size (meters)
+# - str: date
 # - gdf: origins_sample_with_nearest_school
-# - gdf: boundary
-# - r5py: transport_network
+# - gdf: schools_geo
+# - int: METRIC_CRS
 # -----------------------
 # Returns:
 # - df: travel_time_matrix_school
 
-def route_schools(city_file, date, origins_sample_with_nearest_school, schools_geo, coord_crs=4326):
+def route_schools(city_file, date, origins_sample_with_nearest_school, schools_geo):
 
     transport_network = TransportNetwork(f"data/osm/{city_file}.osm.pbf", [f"data/gtfs/gtfs-{city_file}.zip"])
 
@@ -139,6 +133,7 @@ def route_schools(city_file, date, origins_sample_with_nearest_school, schools_g
 
     transit_matrices_school = []
     for school_id, group in origins_sample_with_nearest_school.groupby("school_id"):
+
         destination = schools_geo[schools_geo["objectid"] == school_id]
         destination = destination.rename(columns={"objectid": "id"})
 
@@ -179,9 +174,26 @@ def route_schools(city_file, date, origins_sample_with_nearest_school, schools_g
     return travel_time_matrix_school
 
 
+# route_custom()
+# -----------------------
+# Computes travel times between an arbitrary number of origins and destinations (1) for
+# departures between 6:00am and 02:00am (next day), simulating a departure for every minute for half-hour 
+# intervals two / three hours spaced and (2) time-independent for car and pedestrian routing. It is assumed that when distance to
+# a school is <500m, walking is used instead of driving. Returns a travel time matrix where each row represents data for a separate origin.
+# Columns include worst-case (5% quantile), best-case (95% quantile), and median case (50% quantile) transit travel times and
+# travel time by car (or if distance <500m) by foot.
+# -----------------------
+# Input:
+# - str: city_file
+# - str: date
+# - gdf: origins
+# - gdf: destinations
+# - int: METRIC_CRS
+# -----------------------
+# Returns:
+# - df: travel_time_matrix
 
-
-def route_custom(city_file, date, origins, destinations, coord_crs=4326, metric_crs=2056):
+def route_custom(city_file, date, origins, destinations, metric_crs=2056):
         
         # transit routing
         @st.cache_resource
@@ -217,8 +229,9 @@ def route_custom(city_file, date, origins, destinations, coord_crs=4326, metric_
 
         transit_matrices = pd.concat(transit_matrices, ignore_index=True)
 
-        # osrm routing
+        # osrm routing, adjusted for arbitrary number of origins and destinations
         osrm_matrices = []
+
         for dest_id, _ in destinations.iterrows():
 
             destination_gdf = destinations.loc[[dest_id]]
@@ -227,16 +240,24 @@ def route_custom(city_file, date, origins, destinations, coord_crs=4326, metric_
             origins_with_dist["distance_to_dest_meters"] = origins_with_dist.geometry.to_crs(metric_crs).distance(destination_gdf.geometry.to_crs(metric_crs).iloc[0])
 
             osrm_matrix = osrm_process(city_file, origins_with_dist, destination_gdf, skip=True)
+
+
             if osrm_matrix is not None:
+
                 osrm_matrices.append(osrm_matrix)
 
+        # Combine results, if no results: exit
         if osrm_matrices is not None:
+
             combined = pd.concat(osrm_matrices, ignore_index=True)
+
         else:
+
             print("No destinations and origins within scope. Exiting.")
+
             exit()
 
-        # merge transit times and osrm times
+        # merge transit travel times and osrm travel times
         travel_time_matrix = pd.DataFrame(transit_matrices).merge(combined, on=["from_id", "to_id"])
 
         return travel_time_matrix

@@ -45,16 +45,37 @@ The function returns the boundary, buildings, origins and the the center point f
 
 The second function, `origins_to_schools` maps origins to the closest school within their school district. I use official data from the cities of Bern and Zürich for the locations of schools, but only Bern consistently specifies the type of a school, thus I do not filter by this information. This then makes the results a bit less interesting because yes, sure, it is easy to get to *any* school from most location, just not maybe the one you are interested in. The function obeys mappings of origins to school districts (for which the data is also provided by the cities' open data platforms). I use geopandas' `sjoin()` function to merge origins to schools, which is very fast. The function returns the origins with an identifier for their nearest school added, as well as the locations of the schools where the former then can be used as origins and the latter as destinations for routing in later steps. 
 
+## import_zipfile.py
+
+xxx
+
 ## sampler.py
 
-This script consists of a single function, `grid_sampler()` which starts off by creating a grid of cells with width=height (as specified by the user through the `--cell int` option) from the bounding box of the city of analysis.  
+This script consists of a single function, `grid_sampler()` which starts off by creating a grid of cells with width=height (as specified by the user through the `--cell int` option) from the bounding box of the area of analysis. It then takes the midpoint (I used 'representative point' which ensure the point lies within cell to be safe, but the 'centroid' would have been fine as squares are not unusual geometries) of each cell. I then (1) match origins to cells using geopandas `sjoin()` and compute distances from each origin to their respective cell midpoint. I then use the inverse of the distance to the cell midpoint as a weight when sampling one point from each cell. This is done so that points close the middle are preferred. It would be even simpler to just use the midpoint of the cell as the sample point, but it is important to me that only "real" buildings (the irony is not lost on me that in edge cases, a hut made for cows may be viewed as a building) are used for routing later on. This is especially important at the edge of the sampling area as there, a grid may span well outside the area boundary and only intersect a small part. The difference in sampling can be seen from the figures below in examples for Bern and Zürich. The function returns the sample of origins without any additional columns added from the input.
 
 ## router.py
 
-This script handles everything regarding transit routing and high-level tasks for car and walk routing and defines the three functions `route_center()`, `route_schools()` and `route_custom()` to perform similar tasks with slightly different requirements. Here, to be fair, they may could have been written as one function is more if else statements, but I felt like this provided better readability.
+This script handles everything regarding transit routing and high-level tasks for driving and walk routing and defines the three functions `route_center()`, `route_schools()` and `route_custom()` to perform similar tasks with slightly different requirements. Here, to be fair, they may could have been written as one function is more if else statements, but I felt like this provided better readability.
 
-First things first, `route_center()` takes in multiple origins and one destination from the previous steps and computes transit, car, and walking times for a variety of timepoints across a day (between 6:00am and 02:00am (next day)). Transit routes are computed for every origin whereas whether car or walking routes are computed depends on distance of an origin to the destination. Transit routing is performed by r5py's `TravelTimeMatrix()` function, which uses an adaptation of the RAPTOR algorithm to RAPidly (is that where it got its name?) compute transit routes between origins and destinations. While it is very efficient at doing so, it is not at all efficient at computing car and walking routes. I am not sure why that is, but I have thus decided to use OSRM to accomplish this task. 
+First things first, `route_center()` takes in multiple origins and one destination from the previous steps and computes transit, driving, and walking times for a variety of timepoints across a day (between 6:00am and 02:00am (next day)). Transit routes are computed for every origin whereas whether driving or walking routes are computed depends on distance of an origin to the destination. Transit routing is performed by r5py's `TravelTimeMatrix()` function, which uses an adaptation of the [RAPTOR algorithm](https://www.microsoft.com/en-us/research/wp-content/uploads/2012/01/raptor_alenex.pdf) to RAPidly (is that where it got its name?) compute transit routes between origins and destinations. Because of this, r5py is very efficient at computing transit routes, but is not at all efficient at computing driving and walking routes. I am not sure why that is, but I have thus decided to use OSRM to accomplish this task as not to make performance abysmal. Calling OSRM is outsourced to the file `osrm_routing.py` and is covered below. OSRM computes walking routes for every origin within 500m distance to the destination and driving routes for all others. This is due to the way I present results in the visualisation part: As a ratio between transit travel time and driving / walking travel time. This, when using driving travel times for every origin, results in very "badly covered by public transit" areas close to the destination because a wait time of one minute is suddenly horrific compared to half a minute driving. I make the assumption that no one who would be considering public transit (e.g. not moving into a new flat) would use their car for a trip of 500m or less and that walking time would be a more fair comparison. In addition to this, I administer a 10min penalty on top of driving times to account for traffic, parking and similar mild inconveniences associated with commuting in a metal box. Because r5py uses walk routing for transit time calculation as well (to get to a stop, between stops, or from last stop to destination), both r5py and OSRM use a walking speed of 5km/h. The function returns a combined travel time matrix with both transit and driving / walking (one column, mode dependent on distance to destination) travel times for each origin.
 
+The second function, `route_schools()` essentially mirrors `route_center()` but handles origin-school pairs (so neither all origins -> one same destination nor all origins -> all destinations) by comuting a travel time matrix per school for all of its assigned origins and row-binding afterwards. 
+
+Finally, `route_custom()` is identical in setup for the transit routing as `route_center()`, because r5py supports all origins to all destinations, but differs in how it calls the OSRM routing so that it can handle all origins to all destinations which is possible as the user can specify a (theoretically) unlimited number of origins and destinations. It is not possible to restrict routing to specific origins for destinations like in `route_school()`. 
+
+- Transit: Median, Worst, Best, what is a day? what is a night? which date is used?
+
+## plotter.py
+
+xxx
+
+## imputer.py
+
+xxx
+
+## osrm
+
+OSRM is a routing engine written in C++ which I have decided to run in Docker. This is due to several reasons, to name a few: [1] Building OSRM from source alone takes longer than the allowed 10min setup, [2] OSRM runs natively on Linux, not very much so in Windows without using WSL, and [3] using Docker makes it very easy to use as it just runs as a local server and can be called via an API. This makes prompting it from Python very easy. A reason for a native install would be to increase performance (even more) but given it finishes processing of 160.000 origins to one destination in under a second using docker, I do not feel the need. 
 
 # Innovation
 <!-- Detail what are the new components of your project that have not
